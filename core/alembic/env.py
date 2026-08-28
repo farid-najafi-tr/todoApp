@@ -5,20 +5,48 @@ from sqlalchemy import pool
 
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+
+#my code's
+
+
+#region for find the .env file environment
+from pathlib import Path
+import os 
+import sys
+from dotenv import load_dotenv
+#endregion
+
+#change directory and go to the root project
+root_proje = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(root_proje))
+
+ENV_PATH = root_proje / 'core' / 'core' /'.env'
+
+load_dotenv(dotenv_path=ENV_PATH)
+SQLALCHEMY_POSTGRES_DATABASE_URL = os.getenv('SQLALCHEMY_POSTGRES_DATABASE_URL')
+if not SQLALCHEMY_POSTGRES_DATABASE_URL:
+    raise RuntimeError(
+        "SQLALCHEMY_POSTGRES_DATABASE_URL is not configured"
+    )
+
+
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+config.set_main_option(
+    "sqlalchemy.url",
+    SQLALCHEMY_POSTGRES_DATABASE_URL.replace("%", "%%"),
+)
+
+###########
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+
+from core.core.database import Base
+from core.models import *
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

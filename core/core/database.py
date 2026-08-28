@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import DeclarativeBase
-from config import SQLALCHEMY_POSTGRES_DATABASE_URL
+from .config import SQLALCHEMY_POSTGRES_DATABASE_URL
 
 
 engine = create_engine(SQLALCHEMY_POSTGRES_DATABASE_URL)
