@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 #add my routs
-from router import (
+from .router import (
     tasks_router
 )
 
