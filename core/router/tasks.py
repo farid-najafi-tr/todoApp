@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Path,Depends,HTTPException,status
+from fastapi import APIRouter,Path,Depends,HTTPException,status,Query
 from core.core.database import get_db
 from sqlalchemy.orm import Session
 from core.schema import (
@@ -15,11 +15,25 @@ router = APIRouter(
     prefix="/todo"
 )
 
+#region افزودن فیلتر های پیچیده به بخش task's
+
+@router.get("/tasks/filter",response_model=List[Task_response_schema],status_code=status.HTTP_200_OK)
+async def get_all_task_list_by_filtered(
+    completed : bool = Query(None,description="filter tasks based on being completed or not"),
+    limit:int = Query(10,gt=0,le=50,description="limiting the number of items to retrive"),
+    offset:int = Query(0,gt=0,description="use for pagination"),
+    db : Session = Depends(get_db)):
+    query = db.query(Task_model)
+    if completed is not None:
+        query = query.filter_by(is_completed = completed)
+    return query.limit(limit).offset(offset).all()
+
+#endregion
+
 @router.get("/tasks",response_model=List[Task_response_schema],status_code=status.HTTP_200_OK)
 async def get_all_task_list(db : Session = Depends(get_db)):
     result = db.query(Task_model).all()
     return result
-
 
 @router.get("/tasks/{task_id}",response_model=Task_response_schema,status_code=status.HTTP_200_OK)
 def get_task_detail_by_id(task_id:int = Path(...,gt=0), db : Session = Depends(get_db)):
