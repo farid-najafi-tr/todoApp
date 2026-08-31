@@ -23,10 +23,10 @@ async def get_all_task_list_by_filtered(
     limit:int = Query(10,gt=0,le=50,description="limiting the number of items to retrive"),
     offset:int = Query(0,gt=0,description="use for pagination"),
     db : Session = Depends(get_db)):
-    query = db.query(Task_model)
-    if completed is not None:
-        query = query.filter_by(is_completed = completed)
-    return query.limit(limit).offset(offset).all()
+    query = db.query(Task_model).where(Task_model.is_completed == completed)
+    if not query :
+        HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="your Tasks is empty")
+    return query
 
 #endregion
 
@@ -47,7 +47,8 @@ async def create_the_task(task_create : Task_created_schema, db : Session = Depe
     new_task = Task_model(
         title = task_create.title,
         description = task_create.description,
-        is_completed = task_create.is_completed
+        is_completed = task_create.is_completed,
+        grading = task_create.grading
     )
     db.add(new_task)
     db.commit()
