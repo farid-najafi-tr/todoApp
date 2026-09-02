@@ -4,3 +4,12 @@ from .tasks import (
     Task_Update_Schema,
     Task_Patch_Update
 )
+
+from .users import(
+    UserCreateSchema,
+    ProfileCreateSchema,
+    ProfileResponseSchema,
+    UserResponseSchema,
+    ProfileUpdateSchema,
+    UserUpdateSchema
+)

@@ -17,6 +17,8 @@ from datetime import date
 
 from typing import Optional
 
+from passlib.context import CryptContext
+
 
 def enum_values(enum_class: type[Enum]) -> list[str]:
     """Persist an enum's values instead of its Python member names."""
@@ -48,11 +50,11 @@ class EnGender(str,Enum):
     OTHER = "other"
     PREFER_NOT_TO_SAY = "prefer_not_to_say"
 
-
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 #table's and relationship sections
-class User(Base):
+class UserModel(Base):
     __tablename__ = "tblUsers"
-    
+        
     id : Mapped[int] = mapped_column(Integer,autoincrement=True,primary_key=True,index=True)
     
     username : Mapped[str] = mapped_column(
@@ -126,8 +128,8 @@ class User(Base):
         DateTime(True),
         nullable=True)
     
-    profile: Mapped[Optional["Profile"]] = relationship(
-        "Profile",
+    profile: Mapped[Optional["ProfileModel"]] = relationship(
+        "ProfileModel",
         back_populates="user",
         uselist=False,
         cascade="all,delete-orphan",
@@ -157,7 +159,7 @@ class User(Base):
         return permission_order[self.permission_level] >= permission_order[required_level]
     
     
-class Profile(Base):
+class ProfileModel(Base):
     __tablename__ = "tblProfile"
 
     id: Mapped[int] = mapped_column(
@@ -183,11 +185,11 @@ class Profile(Base):
             nullable=True
         )
     
-    first_name : Mapped[str] = mapped_column(
+    first_name : Mapped[Optional[str]] = mapped_column(
             String(50),
             nullable=True)
 
-    last_name : Mapped[str] = mapped_column(
+    last_name : Mapped[Optional[str]] = mapped_column(
         String(50),
         nullable=True)
     
@@ -221,8 +223,8 @@ class Profile(Base):
         nullable=False 
     )
 
-    user: Mapped["User"] = relationship(
-        "User",
+    user: Mapped["UserModel"] = relationship(
+        "UserModel",
         back_populates="profile",
         single_parent=True
     )

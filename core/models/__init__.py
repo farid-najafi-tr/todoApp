@@ -5,7 +5,7 @@ from .users import (
     EnPermissionLevel,
     EnUserRole,
     EnUserStatus,
-    User,
-    Profile,
+    UserModel,
+    ProfileModel,
 )
 
