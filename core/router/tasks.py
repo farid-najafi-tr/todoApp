@@ -1,6 +1,7 @@
 from fastapi import APIRouter,Path,Depends,HTTPException,status,Query
 from core.core.database import get_db
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from core.schema import (
     Task_Update_Schema,
     Task_response_schema,
@@ -48,12 +49,15 @@ async def create_the_task(task_create : Task_created_schema, db : Session = Depe
         title = task_create.title,
         description = task_create.description,
         is_completed = task_create.is_completed,
-        grading = task_create.grading
+        grading = task_create.grading,
     )
-    db.add(new_task)
-    db.commit()
-    db.refresh(new_task)
-    return new_task
+    try:
+        db.add(new_task)
+        db.commit()
+        db.refresh(new_task)
+        return new_task
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Error!!!,Please try again...")
     
 @router.put("/tasks/{task_id}",status_code=status.HTTP_200_OK)
 async def update_task_detail(task_detail: Task_Update_Schema,task_id:int = Path(...,gt=0), db : Session = Depends(get_db)):

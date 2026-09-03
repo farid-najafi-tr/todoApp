@@ -50,83 +50,102 @@ class EnGender(str,Enum):
     OTHER = "other"
     PREFER_NOT_TO_SAY = "prefer_not_to_say"
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 #table's and relationship sections
 class UserModel(Base):
     __tablename__ = "tblUsers"
         
-    id : Mapped[int] = mapped_column(Integer,autoincrement=True,primary_key=True,index=True)
+    id : Mapped[int] = mapped_column(
+        Integer,
+        autoincrement=True,
+        primary_key=True,
+        index=True
+    )
     
     username : Mapped[str] = mapped_column(
         String(50),
         index=True,
         unique=True,
-        nullable=False)
+        nullable=False
+    )
     
     email : Mapped[str] = mapped_column(
         String(250),
         nullable=False,
-        unique=True)
+        unique=True
+    )
     
     password : Mapped[str] = mapped_column(
         String(500),
-        nullable=False)
+        nullable=False
+    )
     
     phone_number: Mapped[Optional[str]] = mapped_column(
         String(20),
         nullable=True,
-        unique=True)
+        unique=True
+    )
     
     created_at : Mapped[date] = mapped_column(
         DateTime(True),
-        server_default=func.now())
+        server_default=func.now()
+    )
     
     updated_at : Mapped[date] = mapped_column(
         DateTime(True),
         nullable=True,
-        server_onupdate=func.now())
+        server_onupdate=func.now()
+    )
     
     status : Mapped[EnUserStatus] = mapped_column(
         SqlEnum(EnUserStatus, values_callable=enum_values),
         default=EnUserStatus.PENDING,
         nullable=False,
-        server_default=EnUserStatus.PENDING.value)
+        server_default=EnUserStatus.PENDING.value
+    )
     
     role: Mapped[EnUserRole] = mapped_column(
         SqlEnum(EnUserRole, values_callable=enum_values),
         default=EnUserRole.USER,
         nullable=False,
-        server_default=EnUserRole.USER.value)
+        server_default=EnUserRole.USER.value
+    )
     
     permission_level : Mapped[EnPermissionLevel] = mapped_column(
         SqlEnum(EnPermissionLevel, values_callable=enum_values),
         default=EnPermissionLevel.READ,
         nullable=False,
-        server_default=EnPermissionLevel.READ.value)
+        server_default=EnPermissionLevel.READ.value
+    )
     
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
-        nullable=False)
+        nullable=False
+    )
     
     is_verified: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
-        nullable=False)
+        nullable=False
+    )
     
     is_delete: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
-        index=True)
+        index=True
+    )
     
     last_login: Mapped[Optional[date]] = mapped_column(
         DateTime(True),
-        nullable=True)
+        nullable=True
+    )
     
     deleted_at: Mapped[Optional[date]] = mapped_column(
         DateTime(True),
-        nullable=True)
+        nullable=True
+    )
     
     profile: Mapped[Optional["ProfileModel"]] = relationship(
         "ProfileModel",
@@ -134,7 +153,14 @@ class UserModel(Base):
         uselist=False,
         cascade="all,delete-orphan",
         single_parent=True,
-        lazy="joined")
+        lazy="joined"
+    )
+    
+    tasks = relationship(
+        "Task_model",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
     
     def __repr__(self) -> str:
         return f"<User(id={self.id}, username='{self.username}', role={self.role})>"
